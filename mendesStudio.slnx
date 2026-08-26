@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="mendesStudio.Api/Studio.Api.csproj" Id="d703dc9c-dff1-4fb3-8787-e1cfa5bb6948" />
+  <Project Path="mendesStudio.Date/Studio.Date.csproj" />
+  <Project Path="mendesStudio.Domain/Studio.Domain.csproj" />
+  <Project Path="mendesStudio.Service/Studio.Service.csproj" />
+</Solution>
