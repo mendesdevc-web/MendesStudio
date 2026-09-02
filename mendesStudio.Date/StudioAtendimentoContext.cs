@@ -171,14 +171,12 @@ namespace Studio.Date
                       .HasColumnName("codigo_pagamento_cartao");
 
                 entity.Property(p => p.CodigoAtendimento)
-                      .HasColumnName("codigo_atendimento");
+                      .HasColumnName("codigo_atendimento")
+                      .IsRequired();
 
                 entity.Property(p => p.NomeCartao)
-                      .HasColumnName("nome_pagador");
-
-              //  entity.Property(p => p.Nu)
-                 //     .HasColumnName("nome_pagador");
-
+                      .HasColumnName("nome_cartao")
+                      .IsRequired();
 
                 entity.Property(p => p.ValorCartao)
                       .HasColumnName("valor")
@@ -187,6 +185,22 @@ namespace Studio.Date
 
                 entity.Property(p => p.BandeiraCartao)
                       .HasColumnName("bandeira_cartao")
+                      .IsRequired();
+
+                entity.Property(p => p.DataCriacao)
+                      .HasColumnName("data_criacao")
+                      .IsRequired();
+
+                entity.Property(p => p.DataUltimaModificacao)
+                      .HasColumnName("data_ultima_modificacao")
+                      .IsRequired();
+
+                entity.Property(p => p.NumeroVezes)
+                      .HasColumnName("numero_vezes")
+                      .IsRequired();
+
+                entity.Property(p => p.DebitoCredito)
+                      .HasColumnName("debito_credito")
                       .IsRequired();
 
                 // Relacionamento 1:N (Muitos Pagamentos em Cartão pertencem a 1 Atendimento)
@@ -204,19 +218,35 @@ namespace Studio.Date
 
                 entity.HasKey(p => p.CodPagamentoPix);
 
-                entity.Property(p => p.CodPagamentoPix)
-                      .HasColumnName("codigo_pagamento_pix");
-
                 entity.Property(p => p.CodigoAtendimento)
-                      .HasColumnName("codigo_atendimento");
+                      .HasColumnName("codigo_atendimento")
+                      .IsRequired();
+
+                entity.Property(p => p.CodPagamentoPix)
+                      .HasColumnName("codigo_pagamento_pix")
+                      .IsRequired();
+
+                entity.Property(p => p.NomePagador)
+                      .HasColumnName("nome_pagador")
+                      .IsRequired();
+
+                entity.Property(p => p.BancoPagador)
+                      .HasColumnName("banco_pagador")
+                      .IsRequired();
+
 
                 entity.Property(p => p.ValorPix)
-                      .HasColumnName("valor_pagamento")
+                      .HasColumnName("valor")
                       .HasPrecision(18, 2)
                       .IsRequired();
 
-                //entity.Property(p => p.ChavePix)
-                  //    .HasColumnName("chave_pix");
+                entity.Property(p => p.DataCriacao)
+                      .HasColumnName("data_criacao")
+                      .IsRequired();
+
+                entity.Property(p => p.DataUltimaModificacao)
+                      .HasColumnName("data_ultima_modificacao")
+                      .IsRequired();
 
                 // Relacionamento 1:N (Muitos Pagamentos em Pix pertencem a 1 Atendimento)
                 entity.HasOne<AtendimentoModels>()
@@ -239,14 +269,23 @@ namespace Studio.Date
                 entity.Property(p => p.CodigoAtendimento)
                       .HasColumnName("codigo_atendimento");
 
+                entity.Property(p => p.PostoAtendimento)
+                      .HasColumnName("posto_atendimento")
+                      .IsRequired();
+
+                entity.Property(p => p.NomePagador)
+                      .HasColumnName("nome_pagador")
+                      .IsRequired();
+
+                entity.Property(p => p.BancoPagador)
+                      .HasColumnName("banco_pagador")
+                      .IsRequired();
+
                 entity.Property(p => p.ValorDinheiro)
-                      .HasColumnName("valor_pagamento")
+                      .HasColumnName("valor")
                       .HasPrecision(18, 2)
                       .IsRequired();
 
-               // entity.Property(p => p.ValorTroco)
-                 //     .HasColumnName("valor_troco")
-                   //   .HasPrecision(18, 2);
 
                 // Relacionamento 1:N (Muitos Pagamentos em Dinheiro pertencem a 1 Atendimento)
                 entity.HasOne<AtendimentoModels>()
