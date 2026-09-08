@@ -3,12 +3,11 @@ using System.Collections.Generic;
 
 namespace Studio.Service.Dtos.RequestDto 
 {
-    public class CriarAtendimentoRequestDto
+    public class AtendimentoRequestDto
     {
         public int PostoAtendimento { get; set; }
-        public DateTime DataAtendimento { get; set; }
-        public decimal ValorTotal { get; set; }
-        public ClienteVODto Cliente { get; set; }
+        // public DateTime DataAtendimento { get; set; }
+        public ClienteDto Cliente { get; set; }
         public List<ProcedimentosRequestDto> Procedimentos { get; set; }
         public List<PagamentosRequestDto> Pagamentos { get; set; }
     }

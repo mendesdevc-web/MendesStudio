@@ -11,8 +11,4 @@
     <ProjectReference Include="..\mendesStudio.Domain\Studio.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Dtos\ResponseDto\" />
-  </ItemGroup>
-
 </Project>

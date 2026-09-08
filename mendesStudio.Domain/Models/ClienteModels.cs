@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Studio.Domain.Enum;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,9 +11,11 @@ namespace Studio.Domain.Models
     {
         public int CodigoCliente { get; set; }
         public string NomeCliente { get; set; }
-        public string SexoCliente { get; set; }
+        public TipoSexoEnum SexoCliente { get; set; }
         public string? NomeSocial { get; set; }
         public string CpfCliente { get; set; }
         public string RgCliente { get; set; }
+
+        public ICollection<AtendimentoModels> Atendimentos { get; set; }
     }
 }

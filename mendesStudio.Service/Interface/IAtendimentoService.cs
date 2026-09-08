@@ -7,8 +7,6 @@ namespace Studio.Service.Interface
 {
     public interface IAtendimentoService
     {
-        Task<AtendimentoModels> CriarAtendimento(AtendimentoModels atendimento,
-                                 List<ProcedimentosRequestDto> procedimentos,PagamentosRequestDto pagamento
-        );
+        Task<AtendimentoModels> CriarAtendimento( AtendimentoRequestDto atendimento);
     }
 }

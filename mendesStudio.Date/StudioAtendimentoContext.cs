@@ -20,280 +20,351 @@ namespace Studio.Date
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
-            // 1. MAPEAMENTO DA TABELA POSTO
+            
+            
             modelBuilder.Entity<PostoModels>(entity =>
             {
                 entity.ToTable("Postos");
-                entity.HasKey(p => p.CodigoPosto);
 
-                entity.Property(p => p.CodigoPosto)
-                      .HasColumnName("codigo_posto");
+                entity.HasKey(e => e.CodigoPosto)
+                    .HasName("PK_Posto");
 
-                entity.Property(p => p.DescPosto)
-                      .HasColumnName("desc_posto")
-                      .IsRequired();
+                entity.Property(e => e.CodigoPosto)
+                    .HasColumnName("codigo_posto")
+                    .ValueGeneratedOnAdd();
 
-                entity.Property(p => p.NomeEmpresa)
-                      .HasColumnName("nome_empresa")
-                      .IsRequired();
+                entity.Property(e => e.DescPosto)
+                    .HasColumnName("desc_posto")
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .IsRequired();
 
-                entity.Property(p => p.ContaBancaria)
-                      .HasColumnName("conta_bancaria")
-                      .IsRequired();
+                entity.Property(e => e.NomeEmpresa)
+                    .HasColumnName("nome_empresa")
+                    .HasMaxLength(150)
+                    .IsUnicode(false)
+                    .IsRequired();
+
+                entity.Property(e => e.ContaBancaria)
+                    .HasColumnName("conta_bancaria")
+                    .HasMaxLength(30)
+                    .IsUnicode(false)
+                    .IsRequired();
             });
 
-            // 2. MAPEAMENTO DA TABELA ATENDIMENTO
             modelBuilder.Entity<AtendimentoModels>(entity =>
             {
                 entity.ToTable("Atendimentos");
-                entity.HasKey(a => new {a.CodigoAtendimento, a.CodigoCliente});
 
-                // Mapeamento de Colunas
-                entity.Property(a => a.CodigoAtendimento)
-                      .HasColumnName("codigo_atendimento");
+                entity.HasKey(e => new
+                {
+                    e.CodigoAtendimento,
+                    e.CodigoPosto
+                })
+                .HasName("PK_Atendimento");
 
-                entity.Property(a => a.CodigoPosto)
-                      .HasColumnName("codigo_posto");
+                entity.Property(e => e.CodigoAtendimento)
+                    .HasColumnName("codigo_atendimento")
+                    .ValueGeneratedOnAdd();
 
-                entity.Property(a => a.CodigoCliente)
-                      .HasColumnName("codigo_cliente");
+                entity.Property(e => e.CodigoPosto)
+                    .HasColumnName("codigo_posto")
+                    .IsRequired();
 
-                entity.Property(a => a.DataAtendimento)
-                      .HasColumnName("data_atendimento")
-                      .IsRequired();
+                entity.Property(e => e.CodigoCliente)
+                    .HasColumnName("codigo_cliente")
+                    .IsRequired();
 
-                entity.Property(a => a.ValorTotal)
-                      .HasColumnName("valor_total")
-                      .HasPrecision(18, 2)
-                      .IsRequired();
+                entity.Property(e => e.DataAtendimento)
+                    .HasColumnName("data_atendimento")
+                    .IsRequired();
 
-                // Relacionamento 1:N (1 Posto para Muitos Atendimentos)
-                entity.HasOne<PostoModels>()
-                      .WithMany()
-                      .HasForeignKey(a => a.CodigoPosto)
-                      .HasConstraintName("FK_Atendimento_Postos")
-                      .OnDelete(DeleteBehavior.Restrict);
+                entity.Property(e => e.ValorTotal)
+                    .HasColumnName("valor_total")
+                    .HasPrecision(10, 2)
+                    .IsRequired();
 
-                // Relacionamento 1:N (1 Cliente para Muitos Atendimentos)
-                entity.HasOne<ClienteModels>()
-                      .WithMany()
-                      .HasForeignKey(a => a.CodigoCliente)
-                      .HasConstraintName("FK_Atendimento_Clientes")
-                      .OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne(e => e.Posto)
+                   .WithMany(p => p.Atendimentos)
+                   .HasForeignKey(e => e.CodigoPosto)
+                   .HasConstraintName("FK_Atendimento_Posto")
+                   .OnDelete(DeleteBehavior.Restrict);
+
+
+
             });
 
-            // 3. MAPEAMENTO DA TABELA CLIENTES
             modelBuilder.Entity<ClienteModels>(entity =>
             {
                 entity.ToTable("Clientes");
-                entity.HasKey(c => c.CodigoCliente);
 
-                entity.Property(c => c.CodigoCliente)
-                      .HasColumnName("codigo_cliente");
+                entity.HasKey(e => e.CodigoCliente)
+                    .HasName("PK_Clientes");
 
-                entity.Property(c => c.NomeCliente)
-                      .HasColumnName("nome_cliente")
-                      .IsRequired();
+                entity.Property(e => e.CodigoCliente)
+                    .HasColumnName("codigo_cliente")
+                    .ValueGeneratedOnAdd();
 
-                entity.Property(c => c.SexoCliente)
-                      .HasColumnName("sexo_cliente")
-                      .IsRequired();
+                entity.Property(e => e.NomeCliente)
+                    .HasColumnName("nome_cliente")
+                    .HasMaxLength(150)
+                    .IsUnicode(false)
+                    .IsRequired();
 
-                entity.Property(c => c.NomeSocial)
-                      .HasColumnName("nome_social")
-                      .IsRequired(false); 
+                entity.Property(e => e.SexoCliente)
+                    .HasColumnName("sexo_cliente")
+                    .HasMaxLength(14)
+                    .IsUnicode(false)
+                    .HasConversion<string>()
+                    .IsRequired();
 
-                entity.Property(c => c.CpfCliente)
-                      .HasColumnName("cpf_cliente")
-                      .IsRequired();
+                entity.Property(e => e.NomeSocial)
+                    .HasColumnName("nome_social")
+                    .HasMaxLength(150)
+                    .IsUnicode(false);
 
-                entity.Property(c => c.RgCliente)
-                      .HasColumnName("rg_cliente")
-                      .IsRequired();
+                entity.Property(e => e.CpfCliente)
+                    .HasColumnName("cpf_cliente")
+                    .HasMaxLength(14)
+                    .IsUnicode(false)
+                    .HasConversion<string>()
+                    .IsRequired();
+
+                entity.Property(e => e.RgCliente)
+                    .HasColumnName("rg_cliente")
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .IsRequired();
+
+                entity.HasIndex(e => e.CpfCliente)
+                    .IsUnique()
+                    .HasDatabaseName("UQ_Clientes_CPF");
+
+
+                //entity.HasOne(e => e.Posto)
+                //   .WithMany(p => p.Atendimentos)
+                //   .HasForeignKey(e => e.CodigoPosto)
+                //   .HasConstraintName("FK_Atendimento_Posto")
+                //   .OnDelete(DeleteBehavior.Restrict);
+
+
+                entity.HasMany(c => c.Atendimentos)
+                    .WithOne(a => a.Cliente)
+                    .HasForeignKey(a => a.CodigoCliente)
+                    .HasConstraintName("FK_Atendimento_Cliente")
+                    .OnDelete(DeleteBehavior.Restrict);
             });
-            // 4. MAPEAMENTO DA TABELA PROCEDIMENTOS
+
+
+            modelBuilder.Entity<PagamentosCartaoModels>(entity =>
+            {
+                entity.ToTable("PAGAMENTOS_CARTAO");
+
+                entity.HasKey(e => e.CodPagamentoCartao)
+                    .HasName("PK_Pagamentos_Cartao");
+
+                entity.Property(e => e.CodPagamentoCartao)
+                    .HasColumnName("cod_pagamento_cartao")
+                    .ValueGeneratedOnAdd();
+
+                entity.Property(e => e.CodigoAtendimento)
+                    .HasColumnName("codigo_atendimento")
+                    .IsRequired();
+
+                entity.Property(e => e.PostoAtendimento)
+                    .HasColumnName("posto_atendimento")
+                    .IsRequired();
+
+                entity.Property(e => e.NomeCartao)
+                    .HasColumnName("nome_cartao")
+                    .HasMaxLength(150)
+                    .IsRequired();
+
+                entity.Property(e => e.NumeroCartao)
+                    .HasColumnName("numero_cartao")
+                    .HasMaxLength(20)
+                    .IsRequired();
+
+                entity.Property(e => e.ValorCartao)
+                    .HasColumnName("valor")
+                    .HasPrecision(10, 2)
+                    .IsRequired();
+
+                entity.Property(e => e.BandeiraCartao)
+                    .HasColumnName("bandeira_cartao")
+                    .HasMaxLength(50)
+                    .IsRequired();
+
+                entity.Property(e => e.DataCriacao)
+                    .HasColumnName("data_criacao")
+                    .IsRequired();
+
+                entity.Property(e => e.DataUltimaModificacao)
+                    .HasColumnName("data_ultima_modificacao");
+
+                entity.Property(e => e.NumeroVezes)
+                    .HasColumnName("numero_vezes")
+                    .IsRequired();
+
+                entity.Property(e => e.DebitoCredito)
+                    .HasColumnName("debito_credito")
+                    .HasMaxLength(10)
+                    .IsRequired();
+
+                entity.HasOne(e => e.Atendimento)
+                    .WithMany(a => a.PagamentosCartao)
+                    .HasForeignKey(e => new {  e.CodigoAtendimento, e.PostoAtendimento })
+                    .HasConstraintName("FK_Pagamentos_Cartao_Atendimento")
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<PagamentosDinheiroModels>(entity =>
+            {
+                entity.ToTable("PAGAMENTOS_DINHEIRO");
+
+                entity.HasKey(e => e.CodPagamentoDinheiro)
+                    .HasName("PK_Pagamentos_Dinheiro");
+
+                entity.Property(e => e.CodPagamentoDinheiro)
+                    .HasColumnName("cod_pagamento_dinheiro")
+                    .ValueGeneratedOnAdd();
+
+                entity.Property(e => e.CodigoAtendimento)
+                    .HasColumnName("codigo_atendimento")
+                    .IsRequired();
+
+                entity.Property(e => e.PostoAtendimento)
+                    .HasColumnName("posto_atendimento")
+                    .HasMaxLength(10);
+
+                entity.Property(e => e.NomePagador)
+                    .HasColumnName("nome_pagador")
+                    .HasMaxLength(150)
+                    .IsRequired();
+
+                entity.Property(e => e.CpfPagador)
+                    .HasColumnName("cpf_pagador")
+                    .HasMaxLength(14)
+                    .IsRequired();
+
+                entity.Property(e => e.ValorDinheiro)
+                    .HasColumnName("valor")
+                    .HasPrecision(10, 2)
+                    .IsRequired();
+
+                entity.Property(e => e.DataCriacao)
+                    .HasColumnName("data_criacao")
+                    .IsRequired();
+
+                entity.Property(e => e.DataUltimaModificacao)
+                    .HasColumnName("data_ultima_modificacao");
+
+                entity.HasOne(e => e.Atendimento)
+                    .WithMany(a => a.PagamentosDinheiro)
+                    .HasForeignKey(e => new {  e.CodigoAtendimento, e.PostoAtendimento })
+                    .HasConstraintName("FK_Pagamentos_Dinheiro_Atendimento")
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<PagamentoPixModels>(entity =>
+            {
+                entity.ToTable("PAGAMENTOS_PIX");
+
+                entity.HasKey(e => e.CodPagamentoPix)
+                    .HasName("PK_Pagamentos_Pix");
+
+                entity.Property(e => e.CodPagamentoPix)
+                    .HasColumnName("cod_pagamento_pix")
+                    .ValueGeneratedOnAdd();
+
+                entity.Property(e => e.CodigoAtendimento)
+                    .HasColumnName("codigo_atendimento")
+                    .IsRequired();
+
+                entity.Property(e => e.PostoAtendimento)
+                    .HasColumnName("posto_atendimento")
+                    .IsRequired();
+
+                entity.Property(e => e.NomePagador)
+                    .HasColumnName("nome_pagador")
+                    .HasMaxLength(150)
+                    .IsRequired();
+
+                entity.Property(e => e.BancoPagador)
+                    .HasColumnName("banco_pagador")
+                    .HasMaxLength(100)
+                    .IsRequired();
+
+                entity.Property(e => e.ValorPix)
+                    .HasColumnName("valor")
+                    .HasPrecision(10, 2)
+                    .IsRequired();
+
+                entity.Property(e => e.DataCriacao)
+                    .HasColumnName("data_criacao")
+                    .IsRequired();
+
+                entity.Property(e => e.DataUltimaModificacao)
+                    .HasColumnName("data_ultima_modificacao");
+
+                entity.HasOne(e => e.Atendimento)
+                    .WithMany(a => a.PagamentosPix)
+                    .HasForeignKey(e => new { e.CodigoAtendimento, e.PostoAtendimento })
+                    .HasConstraintName("FK_Pagamentos_Pix_Atendimento")
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
             modelBuilder.Entity<ProcedimentoModels>(entity =>
             {
                 entity.ToTable("Procedimentos");
-                entity.HasKey(p => p.CodigoProcedimento);
 
-                entity.Property(p => p.CodigoProcedimento)
-                      .HasColumnName("codigo_procedimento");
+                entity.HasKey(e => e.CodigoProcedimento)
+                    .HasName("PK_Procedimentos");
 
-                entity.Property(p => p.DescProcedimento)
-                      .HasColumnName("desc_procedimento")
-                      .IsRequired();
+                entity.Property(e => e.CodigoProcedimento)
+                    .HasColumnName("codigo_procedimento")
+                    .ValueGeneratedOnAdd();
 
+                entity.Property(e => e.DescProcedimento)
+                    .HasColumnName("nome_procedimento")
+                    .HasMaxLength(200)
+                    .IsRequired();
+
+                entity.HasMany(e => e.Atendimentos)
+                    .WithMany(a => a.Procedimentos);
+                    
             });
 
-            // 5. MAPEAMENTO DA TABELA INTERMEDIÁRIA (N:N)
-            // Atendimento_Procedimentos
             modelBuilder.Entity<AtendimentoProcedimentoModels>(entity =>
             {
                 entity.ToTable("Atendimento_Procedimentos");
+                
+                entity.HasKey(e => new { e.CodigoAtendimento, e.PostoAtendimento, e.CodigoProcedimento })
+                    .HasName("PK_Atendimento_Procedimentos");
+                entity.Property(e => e.CodigoAtendimento)
+                    .HasColumnName("codigo_atendimento")
+                    .IsRequired();
+                entity.Property(e => e.CodigoProcedimento)
+                    .HasColumnName("codigo_procedimento")
+                    .IsRequired();
+                entity.Property(e => e.PostoAtendimento)
+                    .HasColumnName("posto_atendimento")
+                    .IsRequired();
 
-                // 1. Chave Primária Composta (A combinação dos dois códigos cria o ID único da linha)
-                entity.HasKey(ap => new { ap.CodigoAtendimento, ap.CodigoProcedimento });
 
-                // 2. Mapeamento dos Nomes das Colunas
-                entity.Property(ap => ap.CodigoAtendimento)
-                      .HasColumnName("codigo_atendimento");
+                entity.HasOne(e => e.Atendimento)
+                    .WithMany(a => a.AtendimentoProcedimentos)
+                    .HasForeignKey(e => new { e.CodigoAtendimento, e.PostoAtendimento })
+                    .HasConstraintName("FK_AP_Atendimento")
+                    .OnDelete(DeleteBehavior.Restrict);
 
-                entity.Property(ap => ap.CodigoProcedimento)
-                      .HasColumnName("codigo_procedimento");
-
-                entity.Property(ap => ap.PostoAtendimento)
-                      .HasColumnName("posto_atendimento");
-
-                // 3. Relacionamento 1:N com Atendimento (Muitos Atendimento_Procedimentos pertencem a 1 Atendimento)
-                entity.HasOne<AtendimentoModels>()
-                      .WithMany()
-                      .HasForeignKey(ap => ap.CodigoAtendimento)
-                      .HasConstraintName("FK_AtendimentoProcedimento_Atendimento")
-                      .OnDelete(DeleteBehavior.Restrict);
-
-                // 4. Relacionamento 1:N com Procedimento (Muitos Atendimento_Procedimentos pertencem a 1 Procedimento)
-                entity.HasOne<ProcedimentoModels>()
-                      .WithMany()
-                      .HasForeignKey(ap => ap.CodigoProcedimento)
-                      .HasConstraintName("FK_AtendimentoProcedimento_Procedimentos")
-                      .OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne(e => e.Procedimento)
+                    .WithMany(p => p.AtendimentoProcedimentos)
+                    .HasForeignKey(e => e.CodigoProcedimento)
+                    .HasConstraintName("FK_AP_Procedimento")
+                    .OnDelete(DeleteBehavior.Restrict);
             });
 
-            // 6. MAPEAMENTO DE PAGAMENTOS: CARTÃO
-            modelBuilder.Entity<PagamentosCartaoModels>(entity =>
-            {
-                entity.ToTable("PagamentosCartaoModels");
-
-                entity.HasKey(p => p.CodPagamentoCartao);
-                entity.Property(p => p.CodPagamentoCartao)
-                      .HasColumnName("codigo_pagamento_cartao");
-
-                entity.Property(p => p.CodigoAtendimento)
-                      .HasColumnName("codigo_atendimento")
-                      .IsRequired();
-
-                entity.Property(p => p.NomeCartao)
-                      .HasColumnName("nome_cartao")
-                      .IsRequired();
-
-                entity.Property(p => p.ValorCartao)
-                      .HasColumnName("valor")
-                      .HasPrecision(18, 2)
-                      .IsRequired();
-
-                entity.Property(p => p.BandeiraCartao)
-                      .HasColumnName("bandeira_cartao")
-                      .IsRequired();
-
-                entity.Property(p => p.DataCriacao)
-                      .HasColumnName("data_criacao")
-                      .IsRequired();
-
-                entity.Property(p => p.DataUltimaModificacao)
-                      .HasColumnName("data_ultima_modificacao")
-                      .IsRequired();
-
-                entity.Property(p => p.NumeroVezes)
-                      .HasColumnName("numero_vezes")
-                      .IsRequired();
-
-                entity.Property(p => p.DebitoCredito)
-                      .HasColumnName("debito_credito")
-                      .IsRequired();
-
-                // Relacionamento 1:N (Muitos Pagamentos em Cartão pertencem a 1 Atendimento)
-                entity.HasOne<AtendimentoModels>()
-                      .WithMany()
-                      .HasForeignKey(p => p.CodigoAtendimento)
-                      .HasConstraintName("FK_PagamentosCartao_Atendimento")
-                      .OnDelete(DeleteBehavior.Restrict);
-            });
-
-            // 7. MAPEAMENTO DE PAGAMENTOS: PIX
-            modelBuilder.Entity<PagamentoPixModels>(entity =>
-            {
-                entity.ToTable("Pagamentos_Pix");
-
-                entity.HasKey(p => p.CodPagamentoPix);
-
-                entity.Property(p => p.CodigoAtendimento)
-                      .HasColumnName("codigo_atendimento")
-                      .IsRequired();
-
-                entity.Property(p => p.CodPagamentoPix)
-                      .HasColumnName("codigo_pagamento_pix")
-                      .IsRequired();
-
-                entity.Property(p => p.NomePagador)
-                      .HasColumnName("nome_pagador")
-                      .IsRequired();
-
-                entity.Property(p => p.BancoPagador)
-                      .HasColumnName("banco_pagador")
-                      .IsRequired();
-
-
-                entity.Property(p => p.ValorPix)
-                      .HasColumnName("valor")
-                      .HasPrecision(18, 2)
-                      .IsRequired();
-
-                entity.Property(p => p.DataCriacao)
-                      .HasColumnName("data_criacao")
-                      .IsRequired();
-
-                entity.Property(p => p.DataUltimaModificacao)
-                      .HasColumnName("data_ultima_modificacao")
-                      .IsRequired();
-
-                // Relacionamento 1:N (Muitos Pagamentos em Pix pertencem a 1 Atendimento)
-                entity.HasOne<AtendimentoModels>()
-                      .WithMany()
-                      .HasForeignKey(p => p.CodigoAtendimento)
-                      .HasConstraintName("FK_PagamentosPix_Atendimento")
-                      .OnDelete(DeleteBehavior.Restrict);
-            });
-
-            // 8. MAPEAMENTO DE PAGAMENTOS: DINHEIRO
-            modelBuilder.Entity<PagamentosDinheiroModels>(entity =>
-            {
-                entity.ToTable("Pagamentos_Dinheiro");
-
-                entity.HasKey(p => p.CodPagamentoDinheiro);
-
-                entity.Property(p => p.CodPagamentoDinheiro)
-                      .HasColumnName("codigo_pagamento_dinheiro");
-
-                entity.Property(p => p.CodigoAtendimento)
-                      .HasColumnName("codigo_atendimento");
-
-                entity.Property(p => p.PostoAtendimento)
-                      .HasColumnName("posto_atendimento")
-                      .IsRequired();
-
-                entity.Property(p => p.NomePagador)
-                      .HasColumnName("nome_pagador")
-                      .IsRequired();
-
-                entity.Property(p => p.BancoPagador)
-                      .HasColumnName("banco_pagador")
-                      .IsRequired();
-
-                entity.Property(p => p.ValorDinheiro)
-                      .HasColumnName("valor")
-                      .HasPrecision(18, 2)
-                      .IsRequired();
-
-
-                // Relacionamento 1:N (Muitos Pagamentos em Dinheiro pertencem a 1 Atendimento)
-                entity.HasOne<AtendimentoModels>()
-                      .WithMany()
-                      .HasForeignKey(p => p.CodigoAtendimento)
-                      .HasConstraintName("FK_PagamentosDinheiro_Atendimento")
-                      .OnDelete(DeleteBehavior.Restrict);
-            });
         }
     }
 }

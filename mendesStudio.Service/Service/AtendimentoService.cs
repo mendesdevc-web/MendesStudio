@@ -1,6 +1,10 @@
-﻿using Studio.Service.Dtos.RequestDto;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Studio.Date;
 using Studio.Domain.Models;
+using Studio.Service.Dtos.RequestDto;
 using Studio.Service.Interface;
 
 namespace Studio.Service.Service
@@ -13,55 +17,121 @@ namespace Studio.Service.Service
         {
             _context = context;
         }
-        public async Task<AtendimentoModels> CriarAtendimento(AtendimentoModels atendimento,
-                                                List<ProcedimentosRequestDto> procedimentos,PagamentosRequestDto pagamento)
+
+        public async Task<AtendimentoModels> CriarAtendimento(AtendimentoRequestDto atendimentoDto)
         {
-            _context.Atendimentos.Add(atendimento);
-            await _context.SaveChangesAsync();
+            var cliente = await _context.Clientes
+                .FirstOrDefaultAsync(c => c.CpfCliente == atendimentoDto.Cliente.CpfCliente);
 
-            if (procedimentos != null && procedimentos.Any())
+            if (cliente == null)
             {
-                foreach (var item in procedimentos)
+                cliente = new ClienteModels
                 {
-                    _context.Atendimento_Procedimentos.Add(new AtendimentoProcedimentoModels
-                    {
-                        CodigoAtendimento = atendimento.CodigoAtendimento,
-                        PostoAtendimento = atendimento.CodigoPosto,
-                        CodigoProcedimento = item.CodigoProcedimento,
-                    });
-                }
+                    NomeCliente = atendimentoDto.Cliente.NomeCliente,
+                    SexoCliente = atendimentoDto.Cliente.SexoCliente,
+                    NomeSocial = atendimentoDto.Cliente.NomeSocial,
+                    CpfCliente = atendimentoDto.Cliente.CpfCliente,
+                    RgCliente = atendimentoDto.Cliente.RgCliente
+                };
+                await _context.Clientes.AddAsync(cliente);
+
+                await _context.SaveChangesAsync();
+            }
+            else
+            {
+                cliente.NomeCliente = atendimentoDto.Cliente.NomeCliente;
+                cliente.SexoCliente = atendimentoDto.Cliente.SexoCliente;
+                cliente.NomeSocial = atendimentoDto.Cliente.NomeSocial;
+                cliente.RgCliente = atendimentoDto.Cliente.RgCliente;
+                _context.Clientes.Update(cliente);
             }
 
-            if (pagamento != null)
+            var atendimento = new AtendimentoModels
             {
-                if (pagamento.Pix != null && pagamento.Pix.Any())
-                {
-                    foreach (var pix in pagamento.Pix)
-                    {
-                        pix.CodigoAtendimento = atendimento.CodigoAtendimento;
-                        _context.Pagamentos_Pix.Add(pix);
-                    }
-                }
+                CodigoCliente = cliente.CodigoCliente,
+                DataAtendimento = DateTime.Now,
+                CodigoPosto = atendimentoDto.PostoAtendimento
+            };
 
-                if (pagamento.Cartao != null && pagamento.Cartao.Any())
-                {
-                    foreach (var cartao in pagamento.Cartao)
-                    {
-                        cartao.CodigoAtendimento = atendimento.CodigoAtendimento;
-                        _context.Pagamentos_Cartao.Add(cartao);
-                    }
-                }
+            await _context.Atendimentos.AddAsync(atendimento);
+            await _context.SaveChangesAsync(); 
 
-                if (pagamento.Dinheiro != null && pagamento.Dinheiro.Any())
-                {
-                    foreach (var dinheiro in pagamento.Dinheiro)
-                    {
-                        dinheiro.CodigoAtendimento = atendimento.CodigoAtendimento;
-                        _context.Pagamentos_Dinheiro.Add(dinheiro);
-                    }
-                }
+            int idAtendimento = atendimento.CodigoAtendimento;
+
+            var listaProcedimentos = atendimentoDto.Procedimentos.Select(p => new AtendimentoProcedimentoModels
+            {
+                CodigoAtendimento = idAtendimento,
+                PostoAtendimento = atendimentoDto.PostoAtendimento,
+                CodigoProcedimento = p.CodigoProcedimento
+            }).ToList();
+
+            if (listaProcedimentos.Any())
+            {
+                await _context.Atendimento_Procedimentos.AddRangeAsync(listaProcedimentos);
             }
-            await _context.SaveChangesAsync();
+
+            var listaPagamentoPix = atendimentoDto.Pagamentos
+                .Where(p => p.Pix != null)
+                .SelectMany(p => p.Pix)
+                .Select(pixDto => new PagamentoPixModels
+                {
+                    CodigoAtendimento = idAtendimento,
+                    PostoAtendimento = atendimentoDto.PostoAtendimento,
+                    NomePagador = pixDto.NomePagador,
+                    BancoPagador = pixDto.BancoPagador,
+                    ValorPix = pixDto.ValorPix,
+                    DataCriacao = DateTime.Now
+                }).ToList();
+
+            var listaPagamentoCartao = atendimentoDto.Pagamentos
+                .Where(p => p.Cartao != null)
+                .SelectMany(p => p.Cartao)
+                .Select(cartaoDto => new PagamentosCartaoModels
+                {
+                    CodigoAtendimento = idAtendimento,
+                    PostoAtendimento = atendimentoDto.PostoAtendimento,
+                    NomeCartao = cartaoDto.NomeCartao,
+                    NumeroCartao = cartaoDto.NumeroCartao,
+                    ValorCartao = cartaoDto.ValorCartao,
+                    BandeiraCartao = cartaoDto.BandeiraCartao,
+                    DataCriacao = DateTime.Now,
+                    NumeroVezes = cartaoDto.NumeroVezes,
+                    DebitoCredito = cartaoDto.DebitoCredito
+                }).ToList();
+
+            var listaPagamentoDinheiro = atendimentoDto.Pagamentos
+                .Where(p => p.Dinheiro != null)
+                .SelectMany(p => p.Dinheiro)
+                .Select(dinheiroDto => new PagamentosDinheiroModels
+                {
+                    CodigoAtendimento = idAtendimento,
+                    PostoAtendimento = atendimentoDto.PostoAtendimento,
+                    NomePagador = dinheiroDto.NomePagador,
+                    CpfPagador = dinheiroDto.CpfPagador,
+                    ValorDinheiro = dinheiroDto.ValorDinheiro,
+                    DataCriacao = DateTime.Now
+                }).ToList();
+
+            if (listaPagamentoPix.Any())
+                await _context.Pagamentos_Pix.AddRangeAsync(listaPagamentoPix);
+
+            if (listaPagamentoCartao.Any())
+                await _context.Pagamentos_Cartao.AddRangeAsync(listaPagamentoCartao);
+
+            if (listaPagamentoDinheiro.Any())
+                await _context.Pagamentos_Dinheiro.AddRangeAsync(listaPagamentoDinheiro);
+
+            try
+            {
+
+                await _context.SaveChangesAsync();
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine($"Error saving atendimento: {ex.Message}");
+                throw; 
+            }
+
             return atendimento;
         }
     }

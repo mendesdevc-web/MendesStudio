@@ -22,24 +22,14 @@ namespace Studio.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CriarAtendimento([FromBody] CriarAtendimentoRequestDto request)
+        public async Task<IActionResult> CriarAtendimento([FromBody] AtendimentoRequestDto request)
         {
-            var atendimento = new AtendimentoModels
+            if (request == null)
             {
-                CodigoCliente = request.CodigoCliente,
-                CodigoAtendimento = request.PostoAtendimento,
-                DataAtendimento = request.DataAtendimento,
-                ValorTotal = request.ValorTotal
-            };
+                return BadRequest("Os dados do atendimento não foram fornecidos.");
+            }
 
-            
-            var pagamentoDto = request.Pagamentos?.FirstOrDefault();
-
-            var resultado = await _atendimentoService.CriarAtendimento(
-                atendimento,
-                request.Procedimentos,
-                pagamentoDto
-            );
+            var resultado = await _atendimentoService.CriarAtendimento(request);
 
             return Ok(resultado);
         }

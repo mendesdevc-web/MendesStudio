@@ -9,7 +9,9 @@ namespace Studio.Domain.Models
     public class ProcedimentoModels
     {
         public int CodigoProcedimento { get; set; }
-        public decimal ValorProcedimento { get; set; }
         public string DescProcedimento { get; set; }
+
+        public ICollection<AtendimentoModels> Atendimentos { get; set; }
+        public ICollection<AtendimentoProcedimentoModels> AtendimentoProcedimentos { get; set; }
     }
 }

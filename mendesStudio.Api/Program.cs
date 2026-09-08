@@ -1,12 +1,18 @@
+using Microsoft.EntityFrameworkCore;
 using Studio.Date;
 using Studio.Service.Interface;
 using Studio.Service.Service;
-using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler =
+            ReferenceHandler.Preserve;
+    });
 
 builder.Services.AddDbContext<StudioAtendimentoContext>(options =>
     options.UseSqlServer(

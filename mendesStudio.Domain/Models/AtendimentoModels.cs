@@ -14,5 +14,18 @@ namespace Studio.Domain.Models
         public int CodigoCliente { get; set; }
         public DateTime DataAtendimento { get; set; }
         public decimal ValorTotal { get; set; }
+
+
+        public PostoModels Posto { get; set; }
+
+        public ClienteModels Cliente { get; set; }
+
+        public ICollection<AtendimentoProcedimentoModels> AtendimentoProcedimentos { get; set; }
+
+
+        public ICollection<ProcedimentoModels> Procedimentos { get; set; }
+        public ICollection<PagamentoPixModels> PagamentosPix { get; set; }
+        public ICollection<PagamentosCartaoModels> PagamentosCartao { get; set; }
+        public ICollection<PagamentosDinheiroModels> PagamentosDinheiro { get; set; }
     }
 }

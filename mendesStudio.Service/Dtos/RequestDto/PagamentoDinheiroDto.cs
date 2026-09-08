@@ -4,18 +4,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Studio.Domain.Models
+namespace Studio.Service.Dtos.RequestDto
 {
-    public class PagamentosDinheiroModels
+    public class PagamentoDinheiroDto
     {
         public int CodPagamentoDinheiro { get; set; }
         public int CodigoAtendimento { get; set; }
-        public AtendimentoModels Atendimento { get; set; }
         public int PostoAtendimento { get; set; }
         public string NomePagador { get; set; }
         public string CpfPagador { get; set; }
         public decimal ValorDinheiro { get; set; }
-        public DateTime DataCriacao { get; set; } = DateTime.Now;
-        public DateTime DataUltimaModificacao { get; set; } = DateTime.Now;
+       // public DateTime DataCriacao { get; set; }
+       // public DateTime DataUltimaModificacao { get; set; }
     }
 }

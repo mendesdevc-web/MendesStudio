@@ -12,5 +12,8 @@ namespace Studio.Domain.Models
         public string DescPosto { get; set; }
         public string NomeEmpresa { get; set; }
         public string ContaBancaria { get; set; }
+        
+
+        public ICollection<AtendimentoModels> Atendimentos { get; set; }
     }
 }
