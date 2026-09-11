@@ -18,7 +18,7 @@ namespace Studio.Service.Service
             _context = context;
         }
 
-        public async Task<AtendimentoModels> CriarAtendimento(AtendimentoRequestDto atendimentoDto)
+        public async Task<AtendimentoModels> CriarAtendimento(AtendimentoDto atendimentoDto)
         {
             var cliente = await _context.Clientes
                 .FirstOrDefaultAsync(c => c.CpfCliente == atendimentoDto.Cliente.CpfCliente);
@@ -123,7 +123,6 @@ namespace Studio.Service.Service
 
             try
             {
-
                 await _context.SaveChangesAsync();
             }
             catch(Exception ex)
@@ -131,7 +130,20 @@ namespace Studio.Service.Service
                 Console.WriteLine($"Error saving atendimento: {ex.Message}");
                 throw; 
             }
+            return atendimento;
+        }
 
+        public async Task<AtendimentoModels?> ObterAtendimentoPorId(int id)
+        {
+            var atendimento = await _context.Atendimentos
+                .Include(a => a.Cliente)
+                .Include(a => a.Posto)
+                .Include(a => a.AtendimentoProcedimentos)
+                .ThenInclude(ap => ap.Procedimento)
+                .Include(a => a.PagamentosPix)
+                .Include(a => a.PagamentosCartao)
+                .Include(a => a.PagamentosDinheiro)
+                .FirstOrDefaultAsync(a => a.CodigoAtendimento == id);
             return atendimento;
         }
     }

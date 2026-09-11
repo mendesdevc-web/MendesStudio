@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Studio.Service.Dtos.RequestDto 
 {
-    public class AtendimentoRequestDto
+    public class AtendimentoDto
     {
         public int PostoAtendimento { get; set; }
         // public DateTime DataAtendimento { get; set; }

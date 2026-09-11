@@ -1,10 +1,8 @@
 ﻿using Studio.Service.Dtos.RequestDto;
 using Studio.Date;
-using Studio.Domain.Models;
 using Studio.Service.Interface;
 using Microsoft.AspNetCore.Mvc;
-using System.Linq;
-using System.Threading.Tasks;
+
 
 namespace Studio.Api.Controllers
 {
@@ -22,7 +20,7 @@ namespace Studio.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CriarAtendimento([FromBody] AtendimentoRequestDto request)
+        public async Task<IActionResult> CriarAtendimento([FromBody] AtendimentoDto request)
         {
             if (request == null)
             {
@@ -32,6 +30,17 @@ namespace Studio.Api.Controllers
             var resultado = await _atendimentoService.CriarAtendimento(request);
 
             return Ok(resultado);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> ObterAtendimentoPorId(int id)
+        {
+            var atendimento = await _atendimentoService.ObterAtendimentoPorId(id);
+            if (atendimento == null)
+            {
+                return NotFound();
+            }
+            return Ok(atendimento);
         }
     }
 }

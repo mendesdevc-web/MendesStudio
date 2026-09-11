@@ -2,6 +2,7 @@
 using Studio.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Studio.Service.Service;
 
 namespace Studio.Api.Controllers
 {
@@ -10,97 +11,34 @@ namespace Studio.Api.Controllers
     public class ClienteController : ControllerBase
     {
         private readonly StudioAtendimentoContext _context;
+        private readonly ClienteService _clienteService;
 
-        public ClienteController(StudioAtendimentoContext context)
+        public ClienteController(StudioAtendimentoContext context, ClienteService clienteService)
         {
             _context = context;
+            _clienteService = clienteService;
         }
 
-        [HttpGet("teste-conexao")]
-        public async Task<IActionResult> TestarConexao()
+        [HttpGet("{id}")]
+        public async Task<IActionResult> ObterClienteId(int id)
         {
-            var conectado = await _context.Database.CanConnectAsync();
-
-            if (conectado)
+            var cliente = await _clienteService.ObterClientePorId(id);
+            if (cliente == null)
             {
-                return Ok("Conexão com o banco realizada com sucesso!");
+                return NotFound();
             }
-
-            return StatusCode(500, "Não foi possível conectar ao banco.");
-        }
-
-        [HttpGet("teste-leitura")]
-        public async Task<IActionResult> TestarLeitura()
-        {
-            var clientes = await _context.Clientes.ToListAsync();
-
-            return Ok(clientes);
-        }
-
-        [HttpPost("teste-insert-cliente")]
-        public async Task<IActionResult> TestarInsertCliente(
-            [FromBody] ClienteModels cliente)
-        {
-            _context.Clientes.Add(cliente);
-
-            await _context.SaveChangesAsync();
-
             return Ok(cliente);
         }
 
-        [HttpPost("teste-insert-posto")]
-        public async Task<IActionResult> TestarInsertPosto(
-            [FromBody] PostoModels posto)
+        [HttpGet("{cpf}")]
+        public async Task<IActionResult> ObterClienteCpf(string cpf)
         {
-            _context.Postos.Add(posto);
-
-            await _context.SaveChangesAsync();
-
-            return Ok(posto);
-        }
-
-        [HttpPost("teste-insert-procedimento")]
-        public async Task<IActionResult> TestarInsertProcedimento(
-            [FromBody] ProcedimentoModels procedimento)
-        {
-            _context.Procedimentos.Add(procedimento);
-
-            await _context.SaveChangesAsync();
-
-            return Ok(procedimento);
-        }
-
-        [HttpPost("teste-insert-pix")]
-        public async Task<IActionResult> TestarInsertPix(
-            [FromBody] PagamentoPixModels pix)
-        {
-            _context.Pagamentos_Pix.Add(pix);
-
-            await _context.SaveChangesAsync();
-
-            return Ok(pix);
-        }
-
-        [HttpPost("teste-insert-cartao")]
-        public async Task<IActionResult> TestarInsertCartao(
-            [FromBody] PagamentosCartaoModels cartao)
-        {
-            _context.Pagamentos_Cartao.Add(cartao);
-
-            await _context.SaveChangesAsync();
-
-            return Ok(cartao);
-        }
-
-        [HttpPost("teste-insert-dinheiro")]
-        public async Task<IActionResult> TestarInsertDinheiro(
-            [FromBody] PagamentosDinheiroModels dinheiro)
-        {
-            _context.Pagamentos_Dinheiro.Add(dinheiro);
-
-            await _context.SaveChangesAsync();
-
-            return Ok(dinheiro);
+            var cliente = await _clienteService.ObterClientePorCpf(cpf);
+            if (cliente == null)
+            {
+                return NotFound();
+            }
+            return Ok(cliente);
         }
     }
 }
